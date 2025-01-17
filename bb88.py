@@ -60,13 +60,6 @@ def bob_measures(circuits, num_qubits):
         bob_bits.append(measured_bit)
     return bob_bases, bob_bits
 
-def reconcile_bases(alice_bases, bob_bases, alice_bits, bob_bits):
-    matching_bases = alice_bases == bob_bases
-    shared_key_indices = np.where(matching_bases)[0]
-    alice_shared_key = alice_bits[shared_key_indices]
-    bob_shared_key = np.array(bob_bits)[shared_key_indices]
-    return alice_shared_key, bob_shared_key
-
 def check_correct_bases(alice_bases, bob_bases):
     return alice_bases == bob_bases
 
@@ -96,7 +89,7 @@ def calculate_eavesdropping_ratio(confirmed_by_alice):
 
 def collect_data(eavesdropping_enabled=True):
     data = {}
-    # Step 1
+    
     alice_bits, alice_bases = generate_alice_data(num_qubits)
     data['alice_bits'] = alice_bits
     data['alice_bases'] = alice_bases 
@@ -110,17 +103,10 @@ def collect_data(eavesdropping_enabled=True):
     else:
         data['eve_bases'] = None
 
-    # Step 2
     bob_bases, bob_bits = bob_measures(circuits, num_qubits)
     data['bob_bases'] = bob_bases
     data['bob_bits'] = bob_bits
 
-    # Step 3
-    alice_shared_key, bob_shared_key = reconcile_bases(alice_bases, bob_bases, alice_bits, bob_bits)
-    data['alice_shared_key'] = alice_shared_key
-    data['bob_shared_key'] = bob_shared_key
-
-    # Step 4
     correct_bases = check_correct_bases(alice_bases, bob_bases)
     
     data['correct_bases'] = format_correct_bases(correct_bases)
